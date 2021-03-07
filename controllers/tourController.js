@@ -1,4 +1,5 @@
 const Tour = require('./../models/tourModel');
+const APIFeatures = require('./../utils/apiFeatures');
 
 // Param middleware for checking the id parameter
 // exports.checkID = (req, res, next, val) => {
@@ -24,59 +25,20 @@ const Tour = require('./../models/tourModel');
 
 exports.aliasTopTours = (req, res, next) => {
   req.query.limit = '5';
-  req.query.sort = 'price,-ratingsAverage';
+  req.query.sort = '-ratingsAverage, price';
   req.query.fields = 'name,price,ratingsAverage,summary,difficulty';
   next();
 };
 
 exports.getAllTours = async (req, res) => {
   try {
-    // BUILD QUERY
-    // 1A) Filtering
-    const queryObj = { ...req.query };
-    const excludedFields = ['page', 'sort', 'limit', 'fields'];
-    excludedFields.forEach((el) => delete queryObj[el]);
-
-    // 1B) Advanced filtering
-    let queryStr = JSON.stringify(queryObj);
-    queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
-
-    // { difficuty: 'easy', duration: { $gte: 5 } }
-    // gte, gt, lte, lt
-
-    let query = Tour.find(JSON.parse(queryStr)); // Tour.find() return Query object if we will use "await" it will give a result from DB
-
-    // 2) Sorting
-    if (req.query.sort) {
-      const sortBy = req.query.sort.split(',').join(' ');
-      query = query.sort(sortBy);
-    } else {
-      query = query.sort('-createdAt'); // Sorting by defauld, if user didn't specify sorting query
-    }
-
-    // 3) Limiting fields
-    if (req.query.fields) {
-      const fields = req.query.fields.split(',').join(' ');
-      query = query.select(fields);
-    } else {
-      query = query.select('-__v');
-    }
-
-    // 4) Pagination
-    console.log(req.query);
-    const page = req.query.page * 1 || 1;
-    const limit = +req.query.limit || 100;
-    const skip = (page - 1) * limit;
-
-    query = query.skip(skip).limit(limit);
-
-    if (req.query.page) {
-      const numTours = await Tour.countDocuments();
-      if (skip >= numTours) throw new Error('This page does not exist');
-    }
-
     // EXECUTE QUERY
-    const tours = await query;
+    const features = new APIFeatures(Tour.find(), req.query)
+      .filter()
+      .sort()
+      .limitFields()
+      .paginate();
+    const tours = await features.query;
     // query.sort().select().skip().limit()   This is how query looks like
 
     // const query = Tour.find()
