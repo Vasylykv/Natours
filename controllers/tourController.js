@@ -38,14 +38,8 @@ exports.getAllTours = async (req, res) => {
       .sort()
       .limitFields()
       .paginate();
-    const tours = await features.query;
-    // query.sort().select().skip().limit()   This is how query looks like
 
-    // const query = Tour.find()
-    //   .where('duration')
-    //   .equals(5)
-    //   .where('difficulty')
-    //   .equals('easy');
+    const tours = await features.query;
 
     // SEND RESPONSE
     res.status(200).json({
@@ -125,6 +119,43 @@ exports.deleteTour = async (req, res) => {
     res.status(204).json({
       status: 'success',
       tour: null,
+    });
+  } catch (err) {
+    res.status(400).json({
+      status: 'fail',
+      message: err,
+    });
+  }
+};
+
+exports.getTourStats = async (req, res) => {
+  try {
+    const stats = await Tour.aggregate([
+      {
+        $match: { ratingsAverage: { $gte: 4.5 } },
+      },
+      {
+        $group: {
+          _id: { $toUpper: '$difficulty' },
+          numTours: { $sum: 1 },
+          numRatings: { $sum: '$ratingsQuantity' },
+          avgRaiting: { $avg: '$ratingsAverage' },
+          avgPrice: { $avg: '$price' },
+          minPrice: { $min: '$price' },
+          maxPrice: { $max: '$price' },
+        },
+      },
+      {
+        $sort: { avgPrice: 1 },
+      },
+      // {
+      //   $match: { _id: { $ne: 'EASY' } },
+      // },
+    ]);
+
+    res.status(200).json({
+      status: 'success',
+      stats,
     });
   } catch (err) {
     res.status(400).json({

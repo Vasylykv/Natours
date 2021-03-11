@@ -15,6 +15,11 @@ router
 
 // prettier-ignore
 router
+  .route('/tour-stats')
+  .get(tourController.getTourStats);
+
+// prettier-ignore
+router
   .route('/')
   .get(tourController.getAllTours)
   .post(tourController.createTour);
