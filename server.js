@@ -6,7 +6,7 @@ dotenv.config({ path: './config.env' });
 const app = require('./app');
 
 // express Environment variable
-// console.log(app.get('env'));
+console.log(app.get('env'));
 
 // NodeJS Environment variables
 // console.log(process.env);
