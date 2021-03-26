@@ -27,7 +27,6 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: [true, 'Please provide a password'],
     minlength: 8,
-    select: false,
   },
   passwordConfirm: {
     type: String,
@@ -39,6 +38,7 @@ const userSchema = new mongoose.Schema({
       message: 'Passwords are not the same, please try again',
     },
   },
+  passwordChangedAt: Date,
 });
 
 userSchema.pre('save', async function (next) {
@@ -59,6 +59,21 @@ userSchema.methods.correctPassword = async function (
   candidatePassword
 ) {
   return await argon2.verify(userPassword, candidatePassword);
+};
+
+userSchema.methods.changedPasswordAfter = function (JWTTimestamp) {
+  // If user have never changed the password - this property won't exist
+  if (this.passwordChangedAt) {
+    const changedTimestamp = parseInt(
+      this.passwordChangedAt.getTime() / 1000,
+      10
+    );
+
+    console.log(this.passwordChangedAt, JWTTimestamp);
+    return JWTTimestamp < changedTimestamp;
+  }
+
+  return false;
 };
 
 const User = mongoose.model('User', userSchema);

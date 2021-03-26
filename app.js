@@ -19,6 +19,7 @@ app.use(express.static(`public`, { extensions: ['htm', 'html'] }));
 
 app.use((req, res, next) => {
   req.requestedAt = new Date().toISOString();
+  // console.log(req.headers);
   next();
 });
 
