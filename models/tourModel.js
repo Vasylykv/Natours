@@ -122,12 +122,19 @@ const tourSchema = new mongoose.Schema(
   }
 );
 
-tourSchema.virtual('halfGroupSize').get(function () {
-  return this.maxGroupSize / 2;
-});
+// tourSchema.virtual('halfGroupSize').get(function () {
+//   return this.maxGroupSize / 2;
+// });
 
-tourSchema.virtual('durationWeeks').get(function () {
-  return (this.duration / 7).toFixed(1);
+// tourSchema.virtual('durationWeeks').get(function () {
+//   return (this.duration / 7).toFixed(1);
+// });
+
+// Virtual populate
+tourSchema.virtual('reviews', {
+  ref: 'Review',
+  foreignField: 'tour',
+  localField: '_id',
 });
 
 // DOCUMENT MIDDLEWARE: runs before .save() and .create() NOT runs when .insertMany()
