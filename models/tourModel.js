@@ -122,6 +122,12 @@ const tourSchema = new mongoose.Schema(
   }
 );
 
+// tourSchema.index({ price: 1 });
+
+// compound index is also going to work when we query either price or ratingsAverage
+tourSchema.index({ price: 1, ratingsAverage: -1 });
+tourSchema.index({ slug: 1 });
+
 // tourSchema.virtual('halfGroupSize').get(function () {
 //   return this.maxGroupSize / 2;
 // });
