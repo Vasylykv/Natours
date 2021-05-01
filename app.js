@@ -15,6 +15,7 @@ const globalErrorHandler = require('./controllers/errorController');
 const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
 const reviewRouter = require('./routes/reviewRoutes');
+const bookingRouter = require('./routes/bookingRoutes');
 const viewRouter = require('./routes/viewRoutes');
 
 const app = express();
@@ -25,15 +26,25 @@ app.set('views', path.join(__dirname, 'views'));
 // 1) GLOBAL Middlewares
 app.use(express.static(path.join(__dirname, 'public')));
 // Set security HTTP headers
+
+// app.use(
+//   helmet({
+//     hsts: { maxAge: 63072000 },
+//     contentSecurityPolicy: {
+//       directives: {
+//         ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+//         connectSrc: '*',
+//         scriptSrcElem: '*',
+//         frameSrc: '*',
+//       },
+//     },
+//   })
+// );
+
 app.use(
   helmet({
     hsts: { maxAge: 63072000 },
-    contentSecurityPolicy: {
-      directives: {
-        ...helmet.contentSecurityPolicy.getDefaultDirectives(),
-        connectSrc: '*',
-      },
-    },
+    contentSecurityPolicy: false,
   })
 );
 
@@ -100,6 +111,7 @@ app.use('/', viewRouter);
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/reviews', reviewRouter);
+app.use('/api/v1/bookings', bookingRouter);
 
 app.all('*', (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
