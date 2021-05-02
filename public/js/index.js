@@ -4,10 +4,12 @@ import { displayMap } from './mapbox';
 import { login, logout } from './login';
 import { updateSettings } from './updateSettings';
 import { bookTour } from './stripe';
+import { signup } from './signup';
 
 // DOM ELEMENTS
 const mapBox = document.getElementById('map');
 const loginForm = document.querySelector('.form--login');
+const signupForm = document.querySelector('.form--signup');
 const logOutBtn = document.querySelector('.nav__el--logout');
 const userDataForm = document.querySelector('.form-user-data');
 const userPasswordForm = document.querySelector('.form-user-password');
@@ -31,6 +33,19 @@ if (loginForm) {
   });
 }
 
+if (signupForm) {
+  signupForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const username = signupForm.querySelector('#username').value;
+    const email = signupForm.querySelector('#email').value;
+    const password = signupForm.querySelector('#password').value;
+    const passwordConfirm = signupForm.querySelector('#password-confirm').value;
+    console.log(username, email, password, passwordConfirm);
+
+    signup(username, email, password, passwordConfirm);
+  });
+}
+
 if (logOutBtn) logOutBtn.addEventListener('click', logout);
 
 if (userDataForm) {
@@ -41,7 +56,6 @@ if (userDataForm) {
     form.append('email', userDataForm.querySelector('#email').value);
     form.append('photo', userDataForm.querySelector('#photo').files[0]);
 
-    console.log(form);
     updateSettings(form, 'data');
   });
 }
